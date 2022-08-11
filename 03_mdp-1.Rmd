@@ -283,20 +283,7 @@ Note gamma close to one put weight on future rewards while a gamma close to zero
 
 An MDP modelling a problem over a finite time-horizon can be transformed into an infinite time-horizon using an *absorbing state* with transitions only to itself and a reward of zero. This breaks the agent-environment interaction into *episodes* (e.g playing a board game). Each episode ends in the absorbing state, possibly with a different reward. Each starts independently of the last, with some distribution of starting states. Sequences of interaction without an absorbing state are called *continuing tasks*. 
 
-The *objective function* is to choose actions such that the expected return is maximized. Let us formalize this mathematically in the next sections. 
-
-
-<!-- \subsection{Key Takeaways} -->
-<!-- \begin{itemize} -->
-<!-- \item We summarise our goal for the agent as a \textit{reward}; its objective is to maximise the cumulative sum of future rewards -->
-<!-- \item For episodic tasks, returns terminate (and are backpropogated) when the episode ends. For the continuous control case, returns are discounted so they do not run to infinity.  -->
-<!-- \item A state signal that succeeds in retaining all relevant information about the past is \textit{Markov}.  -->
-<!-- \item Markov Decision Processes (MDPs) are the mathematically idealised version of the RL problem. They have system dynamics: $p(s', r | s, a) = Pr \{R_{r+1} = r, S_{t+1} = s' | S_t, A_t\}$ -->
-<!-- \item Policies are a (probabilistic) mapping from states to actions. -->
-<!-- \item Value functions estimate how good it is for an agent to be in a state ($v_\pi$) or to take an action from a state ($q_\pi$). They are always defined w.r.t policies as the value of a state depends on the policy one takes in that state. Value functions are the \textit{expected cumulative sum of future rewards} from a state or state-action pair. -->
-<!-- \item Knowing our policy and system dynamics, we can define the state value function is defined by the Bellman equation: $v_\pi(s) = \sum_{a} \pi(a|s) \sum_{s',r} p(s', r | s, a) \left[r + \gamma v_\pi(s')\right]$ -->
-<!-- \item An optimal policy ($\pi_*$) is the policy that maximises expected cumulative reward from all states. From the optimal policy we can derive the optimal value functions $q_*$ and $v_*$. -->
-<!-- \end{itemize} -->
+The *objective function* is to choose actions such that the expected return is maximized. We will formalize this mathematically in the [next module](https://bss-osca.github.io/rl/mod-mdp-2.html). 
 
 
 ## Summary
@@ -324,6 +311,9 @@ The *objective function* is to choose actions such that the expected return is m
 
    1) Think of two sequential decision problems and try to formulate them as MDPs. Describe the states, actions and rewards in words. 
   
+<!-- Q2 -->
+  
+  
    2) How do the states, actions and rewards look like for the bandit problem? Try drawing the state-expanded hypergraph. 
    
 
@@ -344,7 +334,7 @@ The *objective function* is to choose actions such that the expected return is m
 
 ### Exercise - Gambler's problem {#ex-mdp-1-gambler} 
 
-A gambler has the opportunity to make bets on the outcomes of a sequence of coin flips. If the coin comes up heads, he wins as many dollars as he has staked on that flip; if it is tails, he loses his stake. The game ends when the gambler reaches his goal of a capital equal $100, or loses by running out of money. On each flip, the gambler must decide what portion of his capital to stake, in integer numbers of dollars. This problem can be formulated as an undiscounted, episodic, finite MDP.
+A gambler has the opportunity to make bets on the outcomes of a sequence of coin flips. If the coin comes up heads (H), he wins as many dollars as he has staked on that flip; if it is tails (T), he loses his stake. The game ends when the gambler reaches his goal of a capital equal $100, or loses by running out of money. On each flip, the gambler must decide what portion of his capital to stake, in integer numbers of dollars. This problem can be formulated as an undiscounted, episodic, finite MDP.
 
 <!-- Q1 -->
 
@@ -359,7 +349,7 @@ A gambler has the opportunity to make bets on the outcomes of a sequence of coin
 <!-- Q3 -->
 
    
-   3) Let $R_a$ denote the reward given bet $a. Calculate the expected rewards.
+   3) Let $R_a$ denote the reward given bet $a$. Calculate the expected rewards.
 
 <!-- Q4 -->
 
