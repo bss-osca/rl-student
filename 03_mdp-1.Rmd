@@ -334,12 +334,12 @@ The *objective function* is to choose actions such that the expected return is m
 
 ### Exercise - Gambler's problem {#ex-mdp-1-gambler} 
 
-A gambler has the opportunity to make bets on the outcomes of a sequence of coin flips. If the coin comes up heads (H), he wins as many dollars as he has staked on that flip; if it is tails (T), he loses his stake. The game ends when the gambler reaches his goal of a capital equal $100, or loses by running out of money. On each flip, the gambler must decide what portion of his capital to stake, in integer numbers of dollars. This problem can be formulated as an undiscounted, episodic, finite MDP.
+A gambler has the opportunity to make bets on the outcomes of a sequence of coin flips. The coin may be an unequal coin where there is not equal probability $p_H$ for a head (H) and a tail (T). If the coin comes up heads, the gambler wins as many dollars as he has staked on that flip; if it is tails, he loses his stake. The game ends when the gambler reaches his goal of a capital equal 100, or loses by running out of money. On each flip, the gambler must decide what portion of his capital to stake, in integer numbers of dollars. This problem can be formulated as an undiscounted, episodic, finite MDP, where we assume that the gambler starts with a capital $0 < s_0 < 100$. 
 
 <!-- Q1 -->
 
 
-   1) Define the state space $\mathcal{S}$.
+   1) Define the state space $\mathcal{S}$. Which states are terminal states?
    
 <!-- Q2 -->
 
@@ -349,12 +349,17 @@ A gambler has the opportunity to make bets on the outcomes of a sequence of coin
 <!-- Q3 -->
 
    
-   3) Let $R_a$ denote the reward given bet $a$. Calculate the expected rewards.
+   3) Let $R_a$ denote the reward given bet $a$. Calculate the expected rewards. If the state-value for the terminal states is set to zero, what do the state-value of a policy mean?
 
 <!-- Q4 -->
 
 
-   4) Calculate the transition probabilities.
+   4) Let $R_a$ be zero for all bets $a$ and set the state-value for the terminal state 0 to zero and for state 100 to one. What do the state-value of a policy mean?
+
+<!-- Q5 -->
+
+
+   5) Calculate the transition probabilities.
 
 
 ```{r links, child="links.md", include=FALSE}
