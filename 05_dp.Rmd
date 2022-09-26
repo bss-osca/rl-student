@@ -849,16 +849,16 @@ Define the action space $\mathcal{A}(s)$ for all states $s$.
 
 6) The repair costs are given by $C_{f}=10,\ C_{p2}=7,\ C_{p3}=7$ and $C_{p4}=5$ and the deterioration probabilities $q_{ij}$ are given by matrix Q:
 
-```{r}
-Q <- matrix(c(
-   0.90, 0.10, 0, 0, 0,
-   0, 0.80, 0.10, 0.05, 0.05,
-   0, 0, 0.70, 0.10, 0.20,
-   0, 0, 0, 0.50, 0.50), nrow=4, byrow=T)
-Q
-```
-
-Build the MDP in R.
+   ```{r}
+   Q <- matrix(c(
+      0.90, 0.10, 0, 0, 0,
+      0, 0.80, 0.10, 0.05, 0.05,
+      0, 0, 0.70, 0.10, 0.20,
+      0, 0, 0, 0.50, 0.50), nrow=4, byrow=T)
+   Q
+   ```
+   
+   Build the MDP in R.
 
 
 <!-- Q7 -->
@@ -1010,7 +1010,7 @@ mdp$getActionKeys("0,0")
 mdp$getActionKeys("20,20")
 mdp$getStateKeys()
 
-## Add trans pr and expected reward to the actions. This may take some time!!
+# Add trans pr and expected reward to the actions. This may take some time!!
 states <- expand_grid(x = 0:20, y = 0:20) %>% 
    mutate (state = str_c(x,",",y), pr = 0) 
 for (s in mdp$getStateKeys()) {
