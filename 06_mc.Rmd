@@ -623,10 +623,6 @@ Read Chapter 5.10 in @Sutton18.
 
 ### Exercise - Seasonal inventory and sales planning {#ex-mc-seasonal}
 
-```{r}
-knitr::knit_exit()
-```
-
 Consider the seasonal product in Example \@ref(mc-seasonal). 
 
 ```{r ref.label='RL-env-seasonal-def', include=TRUE, eval=FALSE}
