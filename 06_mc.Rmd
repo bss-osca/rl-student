@@ -500,7 +500,7 @@ df1 %>%
    geom_point() 
 ```
 
-Observe that the states are now sampled differently. Some states are visited many times (many episodes visit that state) while others are not visited often. For the states visited often we have a better approximation of best action compared to states which are visited rarely. Here the action is more or less random, e.g. the action in state $(5,3)$ should not be to set the price to 10 (setting the price to 25 would be better since we only have 5 items left).
+Observe that the states are now sampled differently. Some states are visited many times (many episodes visit that state) while others are not visited often. For the states visited often we have a better approximation of best action compared to states which are visited rarely. Here the action is more or less random, e.g. the action in state $(5,3)$ should not set the price to 10 (setting the price to 25 would be better since we only have 5 items left).
 
 
 
@@ -665,7 +665,7 @@ dfRL %>%
    left_join(dfMDP)
 ```
 
-Why do we not estimate the optimal action here and why do the algorithm stop. Hint: You may have a look at method `gpiOnPolicyMC` in the RLagent class.
+Why do we not estimate the optimal action here and why do the algorithm stop. Hint: You may have a look at method `gpiOnPolicyMC` in the RLAgent class.
 
 
 <!-- Q5 -->
@@ -697,11 +697,11 @@ What happens with the sequence of episodes?
 ```{r, cache=TRUE}
 set.seed(749)
 agent$gpiOnPolicyMC(env, minIte = 100, maxIte = 100000, states = state, reset = T, eps = 0.2)
-agent$getStateValue(state)  # get the state-value v(s) of the epsilon-greedy policy
+agent$getStateValueQ(state)  # get the state-value v(s) of the epsilon-greedy policy
 agent$gpiOnPolicyMC(env, minIte = 1000, maxIte = 100000, states = state, reset = T, eps = 0.2)
-agent$getStateValue(state)  # get the state-value v(s) of the epsilon-greedy policy
+agent$getStateValueQ(state)  # get the state-value v(s) of the epsilon-greedy policy
 agent$gpiOnPolicyMC(env, minIte = 2000, maxIte = 100000, states = state, reset = T, eps = 0.2)
-agent$getStateValue(state)  # get the state-value v(s) of the epsilon-greedy policy
+agent$getStateValueQ(state)  # get the state-value v(s) of the epsilon-greedy policy
 ```
 
 Why is the state-value not increasing monotone as number of iterations increase?
@@ -730,90 +730,14 @@ dfRL %>%
 As can be seen the the optimal state value for the MDP is not equal the action-value for that action. Should that have been the case if run enough simulations?
 
 
-
-
-
-
-
-
 ```{r, include=FALSE}
-knitr::knit_exit()
-```
-
-
-```{r}
-## Using RL MC
-agent <- RLAgent$new()
-agent$addStates(env$getStates())   # add state keys
-for (s in agent$getStateKeys()) {
-   agent$addActions(s, env$getActions(s))
-} 
-agent$getStateKeys()
-agent$getActionKeys("2,5")
-
-
-
-## RESULTS ARE VERY DEPENDENT ON START POLICY!! MAYBY ONLY SHOW EXAMPLE WHERE SAMPLE GIVEN A POLICY? and find the optimal solution using an mdp. 
 # for (s in agent$getStateKeys()) {
 #    for (a in agent$getActionKeys(s)) {
 #       if (a == "25") agent$setActionValueSingle(0.1, 0, s, a)
 #    } 
 # }
 # agent$getActionValues("5,1")
-agent$gpiOnPolicyMC(env)
-dfRL <- agent$getActionValues() %>% 
-   separate(state, sep = ",", into = c("inv", "t"), remove = F, convert = T)
-# df %>% filter(q>0)
-# df %>% filter(t == 1) %>% print(n=80)
-# 
-dfRL %>% 
-   group_by(t, inv) %>% 
-   summarize(ct = sum(n))
-
-
-left_join(dfRL, dfMDP) %>% filter(q != 0)  %>% View
-
-dfRL %>%
-   filter(inv == env$maxInv, t == 1) #%>% pull(n) %>% sum
-df %>%
-   filter(q == env$maxInv, t == 1) 
-
-df1 <- dfRL %>% 
-   group_by(state) %>% 
-   # nest() %>% 
-   slice_max(q) %>% 
-   filter(q != 0)  
-# %>% 
-#    mutate(action = as.numeric(action))
-
-df1 %>% 
-   ggplot(aes(x = t, y = inv, col = action)) +
-   geom_point()
 ```
-
-
-
-
-
-
-
-
-
-
-
-```{r ref.label='RLAgent'}
-```
-
-
-
-
-
-
-
-
-
-
-
 
 
 
