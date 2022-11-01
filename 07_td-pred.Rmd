@@ -356,7 +356,7 @@ agent$setStateValue(states, 0.5)
 agent$setStateValue(c("1", "7"), 0)
 agent$getStateValues()
 agent$policyEvalTD0(env, gamma = 1, states = "4", maxE = 1, reset = F)
-res <- agent$getStateValues() %>% mutate(episodes = 1) %>% print()
+resTD0 <- agent$getStateValues() %>% mutate(episodes = 1) %>% print()
 ```
 
 
