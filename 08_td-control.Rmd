@@ -372,22 +372,176 @@ res1
 
 Consider the car rental problem in Exercise \@ref(ex-mdp-2-car) and \@ref(ex-dp-rental). An MDP model was formulated in Exercise \@ref(ex-dp-rental) and solved using policy iteration. Our goal here is to solve the same problem with GPI using TD. 
 
+
+<!-- MDP model -->
+```{r, include=FALSE, cache=TRUE}
+library(tidyverse)
+
+# Mean of min(D,z). Assume z >= 0
+meanMinD <- function(z, lambda) {
+   if (z == 0) return(0)
+   sum(dpois(0:(z-1), lambda) * 0:(z-1)) + ppois(z-1, lambda, lower.tail = F) * z
+}
+
+reward <- function(x, y, a) {
+   10 * meanMinD(x-a, 3) + 10 * meanMinD(y+a, 4) - 2 * abs(a)
+}
+
+lD <- c(3,4)
+lH <- c(3,2)
+
+# Pr(min(D_i, k) = d)
+# assume that d<=k
+prMin <- function(i, k, d) {
+   if (k == 0) return(1)
+   v <- c(dpois(0:(k-1), lD[i]), ppois(k-1, lD[i], lower.tail = F))
+   return(v[d+1])
+   # if (d == k) return(1 - pD[i, d])     # 1-pr(D <= d-1)
+   # if (d < k) return(dD[i, d+1])
+   # return(NA)
+}
+
+# Pr(xN | x, a)
+transPrX <- function(xN, xBar) {
+   if (xN == 20) {
+      return(sum(prMin(1, xBar, 0:(xBar)) * ppois(xN - xBar + 0:(xBar) - 1, lH[1], lower.tail = F)))
+   }
+   if (xN < 20) {
+      return(sum(prMin(1, xBar, 0:(xBar)) * dpois(xN - xBar + 0:(xBar), lH[1])))
+   }
+   error("Error in calculations!")
+}
+
+# Pr(yN | y, a)
+transPrY <- function(yN, yBar) {
+   if (yN == 20) {
+      return(sum(prMin(2, yBar, 0:(yBar)) * ppois(yN - yBar + 0:(yBar) - 1, lH[2], lower.tail = F)))
+   }
+   if (yN < 20) {
+      return(sum(prMin(2, yBar, 0:(yBar)) * dpois(yN - yBar + 0:(yBar), lH[2])))
+   }
+   error("Error in calculations!")
+}
+
+mat <- matrix(0, nrow = 21, ncol = 21)
+colnames(mat) <- str_c(0:20)
+rownames(mat) <- str_c(0:20)
+matTransPrX <- mat     # matTransPrX[r,c] = Pr(xN = c-1 | xBar = r-1)
+matTransPrY <- mat
+for (r in 1:21) {
+   xBar <- r-1
+   for (c in 1:21) {
+      xN <- c-1
+      matTransPrX[r,c] <- transPrX(xN, xBar)
+      matTransPrY[r,c] <- transPrY(xN, xBar)
+   }
+}
+
+
+mdp <- MDPClass$new()      # initialize mdp object
+states <- expand_grid(x = 0:20, y = 0:20) %>% 
+   mutate (state = str_c(x,",",y)) %>% 
+   pull(state)
+mdp$addStateSpace(states)   # add states (states are keys in a hash and are always converted to strings)
+for (s in mdp$getStateKeys()) {  # add actions for each state (only the key of the action)
+    x <- str_split(s, ",", simplify = T)
+    y <- as.numeric(x[2])
+    x <- as.numeric(x[1])
+    a <- (-min(5, y, 20-x)):(min(5, x, 20-y))
+    mdp$addActionSpace(s, a)
+}
+
+# Add trans pr and expected reward to the actions. This may take some time!!
+states <- expand_grid(x = 0:20, y = 0:20) %>% 
+   mutate (state = str_c(x,",",y), pr = 0) 
+for (s in mdp$getStateKeys()) {
+   for (aS in mdp$getActionKeys(s)) {
+      x <- str_split(s, ",", simplify = T)
+      y <- as.numeric(x[2])
+      x <- as.numeric(x[1])
+      a <- as.numeric(aS) 
+      xBar <- x-a
+      yBar <- y+a
+      for (i in 1:nrow(states)) {
+         states$pr[i] <- matTransPrX[xBar+1, states$x[i] + 1] * matTransPrX[yBar+1, states$y[i] + 1]
+      }
+      transPr <- states$pr
+      names(transPr) <- states$state
+      mdp$addAction(s, aS, r = reward(x, y, a), pr = transPr)
+   }
+}
+
+
+mdp$policyIte(gamma = 0.5, theta = 0.9)
+dfMDP05 <- left_join(mdp$getStateValues(), mdp$getPolicy(), by = "state") %>% 
+   select(-pr) %>% 
+   separate(state, into = c("x", "y"), sep = ",", remove = F, convert = T) %>% 
+   mutate(a = as.numeric(action))
+
+mdp$policyIte(gamma = 0.9, theta = 0.9)
+dfMDP09 <- left_join(mdp$getStateValues(), mdp$getPolicy(), by = "state") %>% 
+   select(-pr) %>% 
+   separate(state, into = c("x", "y"), sep = ",", remove = F, convert = T) %>% 
+   mutate(a = as.numeric(action))
+```
+
+
 <!-- Q1 -->
+
+
 1) Code an environment representing the problem and test your `getTimeStepData` method.
 
+
+
 <!-- Q2 -->
+
+
 2) Run the algorithms `gpiOnPolicySARSA`, `gpiOffPolicyQLearning` and `gpiOnPolicyExpSARSA` using a few iterations with a discount rate $\gamma = 0.5$, `verbose = T` and explain the output.
 
 
 <!-- Q3 -->
-3) Run the algorithms `gpiOnPolicySARSA`, `gpiOffPolicyQLearning` and `gpiOnPolicyExpSARSA` with a discount rate $\gamma = 0.5$ using a high number of iterations. Compare the policy with the optimal deterministic policy found in Exercise \@ref(ex-dp-rental), e.g. make a plot of the optimal policy with $x$ on the y-axis and $y$ on the x-axis, plotting the action. What is the optimal action in state $(1,15)$? What is the state-value in state $(10,3)$ and its interpretation? 
+
+
+3) Run the algorithms `gpiOnPolicySARSA`, `gpiOffPolicyQLearning` and `gpiOnPolicyExpSARSA` with a discount rate $\gamma = 0.5$ using a high number of iterations, e.g. 25000, 50000 and 100000. Compare the policy with the optimal deterministic policy found in Exercise \@ref(ex-dp-rental), e.g. make a plot of the optimal policy with $x$ on the y-axis and $y$ on the x-axis, plotting the action:
+
+```{r}
+ggplot(dfMDP05, aes(x = y, y = x, col = factor(a))) +
+      geom_point() +
+      scale_fill_brewer(palette = "Set2") + 
+      labs(title = str_c("Optimal MDP policy")) 
+```
+
+
+
 
 <!-- Q4 -->
-4) Run the `gpiOffPolicyQLearning` with a discount rate $\gamma = 0.9$ using a high number of iterations and compare the policy and action-values against the state-values for the optimal deterministic policy found in Exercise \@ref(ex-dp-rental).
+
+
+4) Consider Q-learning with 100000 iterations. What is the optimal action in state $(5,5)$? What is the state-value in state $(5,5)$ and $(15,18)$ and its interpretation? 
+
 
 
 <!-- Q5 -->
-5) Run the `gpiOffPolicyQLearning` with a discount rate $\gamma = 0.9$ using different alpha values to test the convergence. 
+
+
+5) Run the algorithm `gpiOffPolicyQLearning` with a discount rate $\gamma = 0.5$ using a high number of iterations, e.g. 25000, 50000 and 100000. However set the start actions-values equal to the optimal state-value in a state found by the MDP. Compare the policy with the policies found in Question 3. 
+
+
+
+
+<!-- Q6 -->
+
+
+6) Run the algorithm `gpiOffPolicyQLearning` with a discount rate $\gamma = 0.5$ and 100000 iterations. Test the effect of different epsilon-greedy behaviour policies, e.g. epsilon = 0.2, 0.5 and 1.
+
+
+
+
+<!-- Q7 -->
+
+
+7) Run the algorithm `gpiOffPolicyQLearning` with a discount rate $\gamma = 0.5$ and 100000 iterations. Test the effect of different step-sizes, e.g. alpha = 0.05, 0.2, 0.5.
+
 
 
 ```{r links, child="links.md", include=FALSE}
@@ -397,25 +551,6 @@ Consider the car rental problem in Exercise \@ref(ex-mdp-2-car) and \@ref(ex-dp-
 knitr::knit_exit()
 ```
 
-```{r, cache=TRUE}
-## old stuff
-
-set.seed(894)
-res <- NULL
-for (alph in seq(0.01, 0.1, by = 0.01)) {  #seq(0.01, 0.1, by = 0.01), c(0.1, 0.05, 0.01)
-   for (ite in c(100, 5000)) {
-      agent$gpiOffPolicyQLearning(env, maxEL = ite, gamma = 0.5, alpha = alph)
-      res <- bind_rows(res, left_join(agent$getActionValues(), agent$getPolicy()) %>% mutate(alpha = alph, ite = ite))
-   }
-}
-
-res %>% 
-   group_by(alpha, ite) %>% 
-   summarise(val = sum(q * pr, na.rm = T)) %>% 
-   ggplot(aes(x = alpha, y = val, col = factor(ite))) +
-   geom_line() + 
-   geom_point()
-```
 
 
 
