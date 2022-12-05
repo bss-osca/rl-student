@@ -428,7 +428,7 @@ Consider an $\epsilon$-greedy algorithm to find the best ad. Assume the webpage 
 
 <!-- Q1 -->
 
-```{r, hint=TRUE}
+```{r, hint=TRUE, eval=FALSE}
 set.seed(327)  # to get same results 
 
 #' Performance of the bandit algorithm.
@@ -460,7 +460,7 @@ env$mV
    
 <!-- Q2 -->
 
-```{r, hint=TRUE}
+```{r, hint=TRUE, eval=FALSE}
 ## Test function modified with plot feature
 testEG <- function(epsilon, steps = 10000) {
    agent <- RLAgent$new(k = 5, epsilon = epsilon)
@@ -490,7 +490,7 @@ testEG(0.5)$plt
    
 <!-- Q3 -->
 
-```{r, hint=TRUE}
+```{r, hint=TRUE, eval=FALSE}
 ## Test function modified with rewards
 testEG <- function(epsilon, steps = 10000) {
    agent <- RLAgent$new(k = 5, epsilon = epsilon)
@@ -588,7 +588,7 @@ RLAgent <- R6Class("RLAgent",
 ```   
    
 
-```{r, hint=TRUE}
+```{r, hint=TRUE, eval=FALSE}
 testUCB <- function(c = 2, steps = 10000) {
    agent <- RLAgent$new(k = 5)
    rewards <- c(10, 8, 5, 15, 2)

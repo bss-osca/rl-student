@@ -566,7 +566,7 @@ rowSums(matTransPrY)
 <!-- Q1 -->
 
 
-```{r, hint=TRUE}
+```{r, hint=TRUE, eval=FALSE}
 mdp <- MDPClass$new()      # initialize mdp object
 states <- expand_grid(x = 0:20, y = 0:20) %>% 
    mutate (state = str_c(x,",",y)) %>% 
